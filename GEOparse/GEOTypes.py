@@ -18,7 +18,7 @@ from pandas import DataFrame, concat
 try:
     from urllib.error import HTTPError
 except ImportError:
-    from urllib2 import HTTPError
+    from urllib.error import HTTPError
 from six import iteritems, itervalues
 
 
@@ -29,9 +29,7 @@ class NoSRARelationException(Exception): pass
 class NoSRAToolkitException(Exception): pass
 
 
-class BaseGEO(object):
-
-    __metaclass__ = abc.ABCMeta
+class BaseGEO(object, metaclass=abc.ABCMeta):
 
     geotype = None
 
@@ -109,7 +107,7 @@ class BaseGEO(object):
         """
          Show metadat in SOFT format
         """
-        print(self._get_metadata_as_string())
+        print((self._get_metadata_as_string()))
 
     def to_soft(self, path_or_handle, as_gzip=False):
         """Save the object in a SOFT format.
@@ -141,9 +139,7 @@ class BaseGEO(object):
         return str("<%s: %s>" % (self.geotype, self.name))
 
 
-class SimpleGEO(BaseGEO):
-
-    __metaclass__ = abc.ABCMeta
+class SimpleGEO(BaseGEO, metaclass=abc.ABCMeta):
 
     def __init__(self, name, metadata, table, columns):
         """base GEO object
@@ -224,7 +220,7 @@ class SimpleGEO(BaseGEO):
     def show_columns(self):
         """Show columns in SOFT format
         """
-        print(self.columns)
+        print((self.columns))
 
     def show_table(self, number_of_lines=5):
         """
@@ -232,7 +228,7 @@ class SimpleGEO(BaseGEO):
 
         :param number_of_lines: int -- number of lines to show
         """
-        print(self.table.head(number_of_lines))
+        print((self.table.head(number_of_lines)))
 
     def _get_object_as_soft(self):
         """
@@ -387,7 +383,7 @@ class GSM(SimpleGEO):
             for sra in self.relations['SRA']:
                 query = sra.split("=")[-1]
                 assert 'SRX' in query, "Sample looks like it is not SRA: %s" % query
-                print("Query: %s" % query)
+                print(("Query: %s" % query))
                 queries.append(query)
         except KeyError:
             raise NoSRARelationException('No relation called SRA for %s' % self.get_accession())
@@ -442,7 +438,7 @@ class GSM(SimpleGEO):
 
             for path in df['download_path']:
                 sra_run = path.split("/")[-1]
-                print("Analysing %s" % sra_run)
+                print(("Analysing %s" % sra_run))
                 url = ftpaddres.format(range_subdir=query[:6],
                                            record_dir=query,
                                            file_dir=sra_run)
@@ -578,7 +574,7 @@ class GDS(SimpleGEO):
             soft.append(self.database._get_object_as_soft())
         soft += ["^%s = %s" % (self.geotype, self.name),
                  self._get_metadata_as_string()]
-        for subset in self.subsets.values():
+        for subset in list(self.subsets.values()):
             soft.append(subset._get_object_as_soft())
         soft += ["^%s = %s" % (self.geotype, self.name),
                  self._get_columns_as_string(),
@@ -669,7 +665,7 @@ class GSE(BaseGEO):
             raise ValueError("Platform has to be of type GPL or string with key for platform in GSE")
 
         data = []
-        for gsm in self.gsms.values():
+        for gsm in list(self.gsms.values()):
             if gpl.name == gsm.metadata['platform_id'][0]:
                 data.append(gsm.annotate_and_average(gpl=gpl,
                                                      merge_on_column=merge_on_column,
@@ -697,7 +693,7 @@ class GSE(BaseGEO):
 
         """
         data = []
-        for gsm in self.gsms.values():
+        for gsm in list(self.gsms.values()):
             tmp_data = gsm.table.copy()
             tmp_data["name"] = gsm.name
             data.append(tmp_data)
@@ -763,9 +759,9 @@ class GSE(BaseGEO):
             dirpath = os.path.abspath(directory)
             utils.mkdir_p(dirpath)
         if filterby is not None:
-            gsms_to_use = [gsm for gsm in self.gsms.values() if filterby(gsm)]
+            gsms_to_use = [gsm for gsm in list(self.gsms.values()) if filterby(gsm)]
         else:
-            gsms_to_use = self.gsms.values()
+            gsms_to_use = list(self.gsms.values())
 
         for gsm in gsms_to_use:
             stderr.write("Downloading %s files for %s series\n" % (filetype, gsm.name))

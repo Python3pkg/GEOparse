@@ -11,7 +11,8 @@ try:
     from urllib.request import urlopen
     from urllib.error import URLError
 except ImportError:
-    from urllib2 import urlopen, URLError
+    from urllib.request import urlopen
+    from urllib.error import URLError
 from contextlib import closing
 from pandas import DataFrame
 import gzip
@@ -383,7 +384,7 @@ def parse_GPL(filepath, entry_name=None, silent=False):
               )
 
     # link samples to series, if these were present in the GPL soft file
-    for gse_id,gse in gpl.gses.items():
+    for gse_id,gse in list(gpl.gses.items()):
         for gsm_id in gse.metadata.get("sample_id", []):
             if gsm_id in gpl.gsms:
                 gpl.gses[gse_id].gsms[gsm_id] = gpl.gsms[gsm_id]

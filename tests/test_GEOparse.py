@@ -66,7 +66,7 @@ class TestGSM(unittest.TestCase):
         self.assertEqual(gsm.get_accession(), "GSM11805")
         self.assertEqual(len(gsm.table.index), 22283)
         self.assertEqual(len(gsm.columns), 3)
-        self.assertEqual(len(gsm.metadata.keys()), 28)
+        self.assertEqual(len(list(gsm.metadata.keys())), 28)
 
     def test_get_metadata_attribute(self):
         metadata = {'name': 'SAMPLE', 'samples': ["sam1", "sam2"]}
@@ -271,10 +271,10 @@ class TestGDS(unittest.TestCase):
         self.assertTrue(isinstance(gds, GDS))
         self.assertEqual(len(gds.table.index), 22645)
         self.assertEqual(len(gds.table.columns), 19)
-        self.assertEqual(len(gds.metadata.keys()), 16) # we omit DATABASE and SUBSET ! entries
-        self.assertEqual(len(gds.database.metadata.keys()), 5)
+        self.assertEqual(len(list(gds.metadata.keys())), 16) # we omit DATABASE and SUBSET ! entries
+        self.assertEqual(len(list(gds.database.metadata.keys())), 5)
         for subset_name, subset in iteritems(gds.subsets):
-            self.assertEqual(len(subset.metadata.keys()), 4)
+            self.assertEqual(len(list(subset.metadata.keys())), 4)
             self.assertTrue(isinstance(subset, GDSSubset))
 
 class TestGSE(unittest.TestCase):
@@ -312,8 +312,8 @@ class TestGSE(unittest.TestCase):
         gse = GEO.get_GEO(geo="GSE1563", destdir=download_geo)
         self.assertTrue(isinstance(gse, GSE))
         self.assertEqual(gse.get_accession(), "GSE1563")
-        self.assertEqual(len(gse.gsms.keys()), 62)
-        self.assertEqual(len(gse.gpls.keys()), 1)
+        self.assertEqual(len(list(gse.gsms.keys())), 62)
+        self.assertEqual(len(list(gse.gpls.keys())), 1)
         self.assertEqual(len(gse.gpls[next(iter(gse.gpls))].table.index),
                          12625)
         self.assertEqual(len(gse.gsms[next(iter(gse.gsms))].table.index),
